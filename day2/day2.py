@@ -24,6 +24,12 @@ def is_game_possible(wanted_cubes, line_cubes):
             return False
     return True
 
+def multiply_dict_values(d):
+    result = 1
+    for value in d.values():
+        result *= value
+    return result
+
 def task1(lines):
     total_game_id_sum = 0
     wanted_cubes = {"red": 12, "green": 13, "blue": 14}
@@ -35,10 +41,19 @@ def task1(lines):
 
     print(total_game_id_sum)
 
+def task2(lines):
+    total_sum = 0
+    for line in lines:
+        game_id, game_gems = parse_line(line.strip())
+        gem_multiplication = multiply_dict_values(game_gems)
+        total_sum += gem_multiplication
+    print(total_sum)
+
 def main():
     file_path = "C:\\Users\\henri\\Desktop\\aoc\\day2\\day2.txt"
     lines = read_file(file_path)
     task1(lines)
+    task2(lines)
 
 if __name__ == "__main__":
     main()
