@@ -1,3 +1,5 @@
+import itertools
+
 def read_file(file_path):
     with open(file_path, "r") as file:
         lines = [line.strip() for line in file.readlines()]
@@ -68,19 +70,44 @@ def getSeedsFromSeedRanges(seeds, maps):
                 lowest_number = final_number[0]
             print(number)
     print(lowest_number)
-            
+
+def get_seeds_from_seed_to_soil(seed_to_soil_map):
+    seeds = []
+    for map_value in seed_to_soil_map:
+        destination_range, source_range, range_length = map_value
+        seeds.append(source_range)
+        seeds.extend(list(range(source_range, source_range+100)))
+        seeds.extend(list(range(source_range + range_length - 100, source_range + range_length)))
+    return seeds
+
+def find_closest_number(seed_number_producing_smallest_result, seeds):
+    smallest_found = 99999999999
+    for seed in seeds:
+        if seed > seed_number_producing_smallest_result and seed < smallest_found:
+            smallest_found = seed
+    return smallest_found
+
 def task1(lines):
     seeds, maps = parse_file(lines)
     final_numbers = go_through_all_maps(seeds, maps)
     print("Task 1: ", min(final_numbers))
 
 def task2(lines):
-    seeds, maps = parse_file(lines)
+    original_seeds, maps = parse_file(lines)
+    seeds = get_seeds_from_seed_to_soil(maps['seed-to-soil'])
+    final_numbers = go_through_all_maps(seeds, maps)
+    seed_dict = dict(zip(seeds, final_numbers))
+    sorted_dict = dict(sorted(seed_dict.items(), key=lambda item: item[1]))
+    seed_number_producing_smallest_result = list(sorted_dict.keys())[0]
+    print(seed_number_producing_smallest_result)
+    smallest_found = find_closest_number(seed_number_producing_smallest_result, original_seeds)
+    print(smallest_found)
+    number = go_through_all_maps([smallest_found], maps)
+    print(number)
 
-    # Pitää käydä lista seed-to-soil map numeroita läpi. jokaisesta ensimmäinen ja vika. ja sitten tulostaa mikä on pienin tulos. Sitten katsoa tämän välin luvuista pienin, mikä löytyyy.
+    # TODO: etsi lähin arvo tästä dictistä
 
-    #final_numbers = go_through_all_maps(seeds, maps)
-    #print("Task 2: ", min(final_numbers))
+    #print(first_30_pairs)
 
 def main():
     file_path = "day5\\data.txt"
