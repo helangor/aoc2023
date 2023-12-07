@@ -30,6 +30,9 @@ def has_n_same_chars(s, amount_of_same_chars):
     char_counts = get_char_counts(s)
     return amount_of_same_chars in char_counts.values()
 
+def has_all_unique_chars(s):
+    return len(s) == len(set(s))
+
 def has_two_pairs(s):
     char_counts = get_char_counts(s)
     return list(char_counts.values()).count(2) == 2
@@ -45,7 +48,6 @@ def transfrom_hand_to_numeric_value(hand, use_jokers=False):
         "A": "14",
         "K": "13",
         "Q": "12",
-        "J": j_value,
         "T": "10",
         "9": "09",
         "8": "08",
@@ -54,10 +56,20 @@ def transfrom_hand_to_numeric_value(hand, use_jokers=False):
         "5": "05",
         "4": "04",
         "3": "03",
-        "2": "02"
+        "2": "02",
+        "J": j_value
     }
     translation_table = str.maketrans(replace_dict)
     return hand.translate(translation_table)
+
+def get_highest_card(hand):
+    values = ["A", "K", "Q", "T", "9", "8", "7", "6", "5", "4", "3", "2"]
+    smallest_integer = 500
+    for char in hand:
+        if char in values:
+            if values.index(char) < smallest_integer:
+                smallest_integer = values.index(char)
+    return values[smallest_integer]
 
 def has_multiple_pairs(s):
     char_counts = Counter(s)
@@ -72,23 +84,19 @@ def replace_jokers(hand):
     #Sitten etsitään tyypillisin kortti, se korvataan. 
     char_counts = Counter(hand_without_jokers)
     most_common_char = max(char_counts, key=char_counts.get)
+    replace_char = most_common_char
 
-    #Korvataan jokeri yleisimmällä kortilla
-    hand_jokers_replaced = hand.replace('J', most_common_char)
+    if has_multiple_pairs(hand_without_jokers) or has_all_unique_chars(hand_without_jokers):
+        replace_char = get_highest_card(hand_without_jokers)
+
+    #Korvataan jokeri valitulla kortilla.
+    hand_jokers_replaced = hand.replace('J', replace_char)
     return hand_jokers_replaced
-
-
-    #Näistä tapauksista etsi vahvimmat. 
-
-    #Jos kaksi paria niin tulee täysikäsi. Kummalla korvataan J?
-    #AAJKK
-
-    # Jos ei pareja niin tulee pari. Millä J korvataan?
-    # 23456
 
 
 def get_hand_value(hand, use_jokers=False):
     first_number = "0"
+    hand_without_jokers = hand
 
     if use_jokers:
         hand = replace_jokers(hand)
@@ -108,7 +116,7 @@ def get_hand_value(hand, use_jokers=False):
     else:  
         first_number = "1"
 
-    return int(first_number + transfrom_hand_to_numeric_value(hand, use_jokers))
+    return int(first_number + transfrom_hand_to_numeric_value(hand_without_jokers, use_jokers))
 
 def count_total_winnings(sorted_hands):
     total_winnings = 0
